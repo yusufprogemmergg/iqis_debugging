@@ -1,0 +1,103 @@
+generator client {
+  provider = "prisma-client-js"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+// ===== ENUMS =====
+
+enum Role {
+  ADMIN
+  CASHIER
+  CUSTOMER
+}
+
+enum PaymentMethod {
+  Transfer
+  Cash
+}
+
+enum BookingStatus {
+  PENDING
+  CONFIRMED
+  CANCELED
+  COMPLETED
+}
+
+enum PaymentStatus {
+  PAID
+  UNPAID
+  PARTIAL
+}
+
+// ===== MODELS =====
+
+model User {
+  id        Int      @id @default(autoincrement())
+  uuid      String   @unique @default(uuid())
+  name      String   @default("")
+  email     String   @unique @default("")
+  password  String   @default("")
+  role      Role     @default(CUSTOMER)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  bookings        Booking[]
+  paymentsHandled Payment[] @relation("KasirRelation")
+}
+
+model Studio {
+  id           Int      @id @default(autoincrement())
+  name         String
+  description  String
+  pricePerHour Int
+  picture      String   @default("")
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  // Relations
+  bookings Booking[]
+}
+
+model Booking {
+  id   Int    @id @default(autoincrement())
+  uuid String @unique @default(uuid())
+
+  // Relations
+  userId   Int?
+  user     User?     @relation(fields: [userId], references: [id])
+  studioId Int
+  studio   Studio    @relation(fields: [studioId], references: [id])
+  payments Payment[]
+
+  // Fields
+  customer      String         @default("")
+  startTime     DateTime
+  endTime       DateTime
+  note          String?
+  totalPrice    Int
+  paymentAmount Int? // ✅ Tambahan: jumlah pembayaran langsung
+  paymentStatus PaymentStatus? // ✅ Tambahan: status pembayaran langsung
+  paymentMethod PaymentMethod?
+  status        BookingStatus  @default(PENDING)
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+}
+
+model Payment {
+  id        Int           @id @default(autoincrement())
+  bookingId Int
+  booking   Booking       @relation(fields: [bookingId], references: [id])
+  amount    Int
+  paidAt    DateTime
+  method    PaymentMethod
+
+  // Kasir yang menangani
+  kasirId Int
+  kasir   User @relation("KasirRelation", fields: [kasirId], references: [id])
+}
