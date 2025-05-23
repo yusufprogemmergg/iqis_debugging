@@ -1,8 +1,8 @@
 import { Request, Response } from "express";
-import { PaymentMethod, PrismaClient } from "../../generated/prisma";
+import { PaymentMethod, PrismaClient } from "@prisma/client";
 import { v4 as uuidv4 } from "uuid";
 import { request } from "http";
-// import { Prisma } from "@prisma/client";
+import { Prisma } from "@prisma/client";
 
 // console.log(Object.keys(Prisma.validator<Prisma.BookingCreateInput>()({})));
 

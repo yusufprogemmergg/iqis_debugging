@@ -11,7 +11,7 @@ export const getDashboard = async (request: Request, response: Response) => {
         const allStudios = await prisma.studio.findMany()
         const newOrders = await prisma.booking.findMany({
             where: {
-                status: { in: ["PENDING", "CONFIRMED"] }    
+                status: { in: ["PENDING", "CONFIRMED"] }
             },
         })
         const doneOrders = await prisma.booking.findMany({
